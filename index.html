@@ -5,142 +5,63 @@
   <title>발신번호 등록 팝업 데모</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{
-      --brand:#ff5a1f;           /* nownsurvey 오렌지 */
-      --border:#e5e7eb;          /* 연한 경계선 */
-      --bg:#ffffff;              /* 팝업 배경 */
-      --head:#f5f6f8;            /* 테이블 thead 배경 */
-      --text:#222;
-      --muted:#6b7280;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    :root{--brand:#ff5a1f;--border:#e5e7eb;--head:#f5f6f8;--text:#222;--muted:#6b7280}
+    *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;background:#f3f4f6;color:var(--text);font-family:-apple-system,system-ui,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
-
-    /* ===== 팝업 컨테이너 (이미지와 같은 레이어 느낌) ===== */
     .overlay{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:18px;background:rgba(0,0,0,.25)}
-    .popup{
-      width:min(940px,100%); height:min(95vh,720px);
-      background:var(--bg); border:1px solid var(--border); border-radius:6px;
-      box-shadow:0 8px 30px rgba(0,0,0,.25); display:grid; grid-template-rows:auto 1fr;
-      overflow:hidden;
-    }
-    /* 상단 바 */
-    .bar{
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
-      padding:12px 16px; border-bottom:1px solid var(--border); background:#fff;
-    }
-    .brand{display:flex; align-items:center; gap:10px}
-    .logo{font-weight:900; color:var(--brand); font-size:22px; letter-spacing:.2px}
-    .close{border:0;background:#fff; width:28px; height:28px; font-size:18px; line-height:28px; cursor:pointer}
-    .close:hover{background:#f3f4f6; border-radius:4px}
-
-    /* 본문(좌우 여백 포함) */
-    .content{padding:12px 16px; overflow:auto}
-
-    /* ===== FAQ iFrame ===== */
-    .faq-box{margin-bottom:14px}
+    .popup{width:min(940px,100%);height:min(95vh,720px);background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+    .bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff}
+    .logo{font-weight:900;color:var(--brand);font-size:22px}
+    .close{border:0;background:#fff;width:28px;height:28px;font-size:18px;line-height:28px;cursor:pointer} .close:hover{background:#f3f4f6;border-radius:4px}
+    .content{padding:12px 16px;overflow:auto}
     .faq-label{font-size:12px;color:var(--muted);margin:0 0 6px 2px}
-    .frame{
-      height:360px; border:1px solid var(--border); border-radius:4px; overflow:hidden;
-      background:#fafafa;
-    }
-    .frame iframe{width:100%; height:100%; border:0}
-
-    /* ===== 등록 영역 (이미지 스타일에 맞춤) ===== */
-    .toolbar{display:flex; align-items:center; gap:8px; margin:2px 0 10px}
+    .frame{height:360px;border:1px solid var(--border);border-radius:4px;overflow:hidden;background:#fafafa;margin-bottom:12px}
+    .frame iframe{width:100%;height:100%;border:0}
+    .toolbar{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
     .toolbar label{min-width:72px}
-    .input{
-      height:32px; padding:0 10px; border:1px solid var(--border); border-radius:2px; min-width:240px; font:inherit;
-    }
-    .btn{
-      height:32px; padding:0 12px; border:1px solid #cfd3db; background:#f6f7f9; color:#222; border-radius:2px; cursor:pointer;
-      font-weight:700;
-    }
+    .input{height:32px;padding:0 10px;border:1px solid var(--border);border-radius:2px;min-width:240px;font:inherit}
+    .btn{height:32px;padding:0 12px;border:1px solid #cfd3db;background:#f6f7f9;color:#222;border-radius:2px;cursor:pointer;font-weight:700}
     .btn:hover{background:#eef0f4}
-    .btn.primary{border-color:#cfd3db; background:#f6f7f9}
-
-    /* 테이블 (이미지처럼) */
-    .table-wrap{border:1px solid var(--border); border-radius:2px; overflow:auto}
-    table{width:100%; border-collapse:collapse; background:#fff}
-    thead th{
-      text-align:left; background:var(--head); border-bottom:1px solid var(--border);
-      padding:8px 10px; font-weight:700; font-size:13px;
-    }
-    tbody td{
-      padding:10px; border-bottom:1px solid var(--border); font-size:13px;
-    }
+    .table-wrap{border:1px solid var(--border);border-radius:2px;overflow:auto}
+    table{width:100%;border-collapse:collapse;background:#fff}
+    thead th{text-align:left;background:var(--head);border-bottom:1px solid var(--border);padding:8px 10px;font-weight:700;font-size:13px}
+    tbody td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
     tbody tr:last-child td{border-bottom:0}
-    .col-num{width:60px}
-    .col-status{width:120px}
-    .col-auth{width:90px}
-    .col-date{width:180px}
-    .col-del{width:64px}
-    .del-btn{
-      width:24px; height:24px; border:0; background:#fff; cursor:pointer; border-radius:3px; display:inline-flex; align-items:center; justify-content:center;
-    }
+    .col-num{width:60px}.col-status{width:120px}.col-auth{width:90px}.col-date{width:180px}.col-del{width:64px}
+    .del-btn{width:24px;height:24px;border:0;background:#fff;cursor:pointer;border-radius:3px;display:inline-flex;align-items:center;justify-content:center}
     .del-btn:hover{background:#f3f4f6}
-    .x{font-size:16px; line-height:1}
-
-    /* 상단 얇은 구분선 느낌 */
-    .top-divider{height:1px; background:var(--border); margin:10px 0}
   </style>
 </head>
 <body>
-
   <div class="overlay">
-    <section class="popup" role="dialog" aria-modal="true" aria-labelledby="title">
-      <!-- 상단바 -->
+    <section class="popup" role="dialog" aria-modal="true" aria-labelledby="t">
       <header class="bar">
-        <div class="brand">
-          <div class="logo">nownsurvey</div>
-        </div>
+        <div id="t" class="logo">nownsurvey</div>
         <button class="close" aria-label="닫기" onclick="document.querySelector('.overlay').style.display='none'">✕</button>
       </header>
 
-      <!-- 본문 -->
       <div class="content">
-        <!-- FAQ iFrame -->
-        <section class="faq-box">
-          <p class="faq-label">문자 배포 발신번호 등록 안내 (스크롤 가능)</p>
-          <div class="frame">
-            <iframe id="faq" title="FAQ"></iframe>
-          </div>
-        </section>
-
-        <div class="top-divider"></div>
+        <!-- FAQ (.area-content만) -->
+        <p class="faq-label">문자 배포 발신번호 등록 안내</p>
+        <div class="frame"><iframe id="faq"></iframe></div>
 
         <!-- 발신번호 등록 영역 -->
         <section aria-label="발신번호 등록">
           <div class="toolbar">
             <label for="cb">발신번호:</label>
             <input id="cb" class="input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="11" placeholder="숫자만 입력 (예: 01012345678)" />
-            <button class="btn primary">사전 등록 신청</button>
+            <button class="btn">사전 등록 신청</button>
             <button class="btn" onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">문자 배포 발신번호 등록 안내</button>
           </div>
-
           <div class="table-wrap">
             <table>
-              <colgroup>
-                <col class="col-num"><col>
-                <col class="col-status"><col class="col-auth">
-                <col class="col-date"><col class="col-del">
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>번호</th>
-                  <th>발신번호</th>
-                  <th>진행상태</th>
-                  <th>인증 여부</th>
-                  <th>접수 일시</th>
-                  <th>삭제</th>
-                </tr>
-              </thead>
+              <colgroup><col class="col-num"><col><col class="col-status"><col class="col-auth"><col class="col-date"><col class="col-del"></colgroup>
+              <thead><tr><th>번호</th><th>발신번호</th><th>진행상태</th><th>인증 여부</th><th>접수 일시</th><th>삭제</th></tr></thead>
               <tbody>
-                <tr><td>4</td><td>01011111111</td><td>접수중</td><td>비승인</td><td>2025-07-10 10:44:17</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
-                <tr><td>3</td><td>1111111</td><td>심사완료</td><td>승인</td><td>2025-06-19 13:16:23</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
-                <tr><td>2</td><td>0231494919</td><td>심사완료</td><td>승인</td><td>2025-06-16 16:32:55</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
-                <tr><td>1</td><td>01035834188</td><td>접수중</td><td>비승인</td><td>2025-06-13 09:14:40</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
+                <tr><td>4</td><td>01011111111</td><td>접수중</td><td>비승인</td><td>2025-07-10 10:44:17</td><td><button class="del-btn" aria-label="삭제">✕</button></td></tr>
+                <tr><td>3</td><td>1111111</td><td>심사완료</td><td>승인</td><td>2025-06-19 13:16:23</td><td><button class="del-btn" aria-label="삭제">✕</button></td></tr>
+                <tr><td>2</td><td>0231494919</td><td>심사완료</td><td>승인</td><td>2025-06-16 16:32:55</td><td><button class="del-btn" aria-label="삭제">✕</button></td></tr>
+                <tr><td>1</td><td>01035834188</td><td>접수중</td><td>비승인</td><td>2025-06-13 09:14:40</td><td><button class="del-btn" aria-label="삭제">✕</button></td></tr>
               </tbody>
             </table>
           </div>
@@ -150,26 +71,19 @@
   </div>
 
   <script>
-    // (1) FAQ iFrame 로딩
-    // 기본: 공개 URL 그대로 사용(스크롤-투-텍스트로 '문자 배포 발신번호 등록 안내' 쪽부터 시작)
-    const PUBLIC_FAQ = "https://www.nownsurvey.com/board/faq/view/wr_id/5453#:~:text=%5B%EB%AC%B8%EC%9E%90%20%EB%B0%9C%EC%86%A1%EB%B2%88%ED%98%B8%20%EB%93%B1%EB%A1%9D%20%EC%95%88%EB%82%B4%5D";
+    // ★ 여기에 너가 배포한 "클린 프록시" 주소를 넣어주면 .area-content만 보임
+    //    Workers:   https://<your>.workers.dev
+    //    PHP:       https://<host>/clean.php
+    const CLEAN_URL = new URLSearchParams(location.search).get('w') || ''; // ?w= 로도 지정 가능
+    const RAW = "https://www.nownsurvey.com/board/faq/view/wr_id/5453";
+    const target = CLEAN_URL ? `${CLEAN_URL}?url=${encodeURIComponent(RAW)}&selector=.area-content` : RAW;
 
-    // 선택: 헤더/푸터 완전 제거가 가능한 '클린 URL'(Cloudflare Worker/PHP 프록시 등)을 ?w= 로 전달하면 그걸 사용
-    // 예: index.html?w=https://your-worker.workers.dev
-    const params = new URLSearchParams(location.search);
-    const worker = params.get("w");  // 클린 서버 주소 (옵션)
-    const rawUrl = "https://www.nownsurvey.com/board/faq/view/wr_id/5453";
+    // 클린 프록시가 없으면 원문 전체가 보이니, 꼭 ?w= 로 넘기거나 CLEAN_URL 상수에 넣어줘.
+    document.getElementById("faq").src = target;
 
-    const src = worker
-      ? `${worker}?url=${encodeURIComponent(rawUrl)}&selector=.area-content`
-      : PUBLIC_FAQ;
-
-    document.getElementById("faq").src = src;
-
-    // (2) 숫자만 입력
-    document.getElementById('cb').addEventListener('keydown', (e)=>{
-      const k = e.keyCode;
-      const ok = (k===8||k===9||k===13||k===46||(k>=37&&k<=40)||(k>=48&&k<=57)||(k>=96&&k<=105));
+    // 숫자만 입력
+    document.getElementById('cb').addEventListener('keydown',(e)=>{
+      const k=e.keyCode, ok=(k===8||k===9||k===13||k===46||(k>=37&&k<=40)||(k>=48&&k<=57)||(k>=96&&k<=105));
       if(!ok) e.preventDefault();
     });
   </script>
