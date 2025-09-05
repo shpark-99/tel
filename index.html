@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>발신번호 등록 팝업 (FAQ + 기존 스타일 적용)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script defer src="./config.js"></script>
+  <style>
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;background:#fff;color:#0f172a}
+    /* 모달 */
+    .backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px}
+    .modal{width:min(1080px,100%);height:min(90vh,920px);background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 12px 32px rgba(2,6,23,.35);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+    .modal-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eef2f7;background:#f8fafc}
+    .modal-title{font-weight:800}
+    .close{width:34px;height:34px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer}
+    .modal-b{padding:14px;overflow:auto}
+    .modal-f{padding:12px 16px;border-top:1px solid #eef2f7;text-align:right;background:#fff}
+    /* 프레임 박스 */
+    .box{margin-bottom:16px}
+    .box-label{font-size:13px;color:#6b7280;margin:0 0 6px 2px}
+    .clip{position:relative;width:100%;height:420px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fafafa}
+    .clip iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  </style>
+</head>
+<body>
+  <div class="backdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="t">
+      <header class="modal-h">
+        <div id="t" class="modal-title">문자 배포 발신번호 등록 안내 · 등록/관리</div>
+        <button class="close" onclick="this.closest('.backdrop').style.display='none'">✕</button>
+      </header>
+
+      <div class="modal-b">
+        <!-- 1) FAQ (.area-content만 보이도록 워커 URL 사용) -->
+        <section class="box">
+          <p class="box-label">FAQ (.area-content만 표시)</p>
+          <div class="clip">
+            <iframe id="faqFrame" title="FAQ" scrolling="yes"></iframe>
+          </div>
+        </section>
+
+        <!-- 2) 발신번호 등록 영역 (기존 느낌 스타일) -->
+        <section class="box">
+          <p class="box-label">발신번호 등록 영역 (기존 스타일 적용)</p>
+          <div class="clip" style="height:420px">
+            <iframe id="regFrame" title="등록영역" scrolling="yes"></iframe>
+          </div>
+        </section>
+      </div>
+
+      <footer class="modal-f">
+        <button onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">FAQ 원문</button>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    // --- 1) FAQ iFrame: Cloudflare Worker로 클린된 원문 사용 ---
+    (function initFAQ(){
+      const url = 'https://www.nownsurvey.com/board/faq/view/wr_id/5453';
+      // 우선순위: URL 파라미터 w => config.js의 WORKER_URL
+      const params = new URLSearchParams(location.search);
+      const worker = params.get('w') || (window.WORKER_URL || '').trim();
+      if(!worker){
+        console.warn('WORKER_URL이 비어있어요. site/config.js를 채우거나 ?w=... 로 넘겨주세요.');
+      }
+      const src = worker ? `${worker}?url=${encodeURIComponent(url)}&selector=.area-content` : url;
+      document.getElementById('faqFrame').src = src;
+    })();
+
+    // --- 2) 등록 영역 iFrame: 기존 느낌 CSS(변수 + 최소 스타일). 필요 시 원본 CSS 링크를 추가 ---
+    const cssLinks = `
+      <!-- (선택) 완전 동일 스타일을 원하면 원본 CSS <link>를 추가하세요 (절대경로).
+      <link rel="stylesheet" href="https://www.nownsurvey.com/web/css/base.css?version=20231003">
+      <link rel="stylesheet" href="https://www.nownsurvey.com/web/css/renewal/common_v2.css?version=20231003">
+      <link rel="stylesheet" href="https://www.nownsurvey.com/web/css/renewal/vote_v4.css?version=20231003">
+      <link rel="stylesheet" href="https://www.nownsurvey.com/web/css/renewal/svy_renewal.css?version=20231003">
+      -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/nanumgothic.css">
+    `;
+
+    const cssVars = `
+      :root{
+        --text-primary:#222; --text-secondary:#444; --text-secondary-light:#666; --text-gray-light:#888; --text-diabled:#aaa;
+        --font-SUIT:"SUIT Variable","SUIT",-apple-system,BlinkMacSystemFont,system-ui,Roboto,"Helvetica Neue","Segoe UI","Noto Sans KR","Malgun Gothic",sans-serif;
+      }
+    `;
+
+    const regHtml = `
+      <!doctype html><html lang="ko"><head><meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <base href="https://www.nownsurvey.com/">
+      ${cssLinks}
+      <style>
+        ${cssVars}
+        body{margin:16px;color:var(--text-primary);font:14px/1.6 var(--font-SUIT);background:#fff}
+        .bside-con{margin-bottom:12px}
+        .form-control{height:36px;padding:0 12px;border:1px solid #d1d5db;border-radius:8px;min-width:220px;font:inherit;color:inherit;outline:none}
+        .button-type6{height:36px;padding:0 12px;margin-left:6px;border:1px solid #111827;background:#111827;color:#fff;border-radius:8px;cursor:pointer;font-weight:700}
+        .board-list{width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+        .board-list caption{display:none}
+        .board-list thead th{text-align:left;background:#f8fafc;color:#0f172a;font-weight:800;font-size:14px;border-bottom:1px solid #e5e7eb;padding:10px 12px}
+        .board-list tbody td{padding:10px 12px;border-bottom:1px solid #f1f5f9;font-size:14px}
+        .board-list tbody tr:last-child td{border-bottom:0}
+        .mb10{margin-bottom:10px}.mb15{margin-bottom:15px}
+      </style></head><body>
+
+        <div class="bside-con mb15">
+          <div>
+            <label for="callback">발신번호:&nbsp;</label>
+            <input id="callback" name="callback" class="form-control onlyNumber" type="text" maxlength="11" placeholder="숫자만 입력">
+            <button class="button-type6">사전 등록 신청</button>
+            <button class="button-type6" onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">문자 배포 발신번호 등록 안내</button>
+          </div>
+        </div>
+
+        <table class="board-list mb10">
+          <caption>발신번호 목록</caption>
+          <colgroup><col style="width:50px"><col><col style="width:90px"><col style="width:90px"><col style="width:150px"><col style="width:70px"></colgroup>
+          <thead><tr><th>번호</th><th>발신번호</th><th>진행상태</th><th>인증 여부</th><th>접수 일시</th><th>삭제</th></tr></thead>
+          <tbody>
+            <tr><td>4</td><td>01011111111</td><td>접수중</td><td>비승인</td><td>2025-07-10 10:44:17</td><td><button type="button" style="border:0;background:none;cursor:pointer"><img src="/img/common/ico-del4.png" alt="삭제"></button></td></tr>
+            <tr><td>3</td><td>1111111</td><td>심사완료</td><td>승인</td><td>2025-06-19 13:16:23</td><td><button type="button" style="border:0;background:none;cursor:pointer"><img src="/img/common/ico-del4.png" alt="삭제"></button></td></tr>
+            <tr><td>2</td><td>0231494919</td><td>심사완료</td><td>승인</td><td>2025-06-16 16:32:55</td><td><button type="button" style="border:0;background:none;cursor:pointer"><img src="/img/common/ico-del4.png" alt="삭제"></button></td></tr>
+            <tr><td>1</td><td>01035834188</td><td>접수중</td><td>비승인</td><td>2025-06-13 09:14:40</td><td><button type="button" style="border:0;background:none;cursor:pointer"><img src="/img/common/ico-del4.png" alt="삭제"></button></td></tr>
+          </tbody>
+        </table>
+
+        <script>
+          document.querySelectorAll('.onlyNumber').forEach(function($el){
+            $el.addEventListener('keydown', function(e){
+              var k=e.keyCode;
+              var ok=(k===8||k===9||k===13||k===46||(k>=37&&k<=40)||(k>=48&&k<=57)||(k>=96&&k<=105));
+              if(!ok) e.preventDefault();
+            });
+          });
+        </script>
+      </body></html>
+    `;
+    document.getElementById('regFrame').srcdoc = regHtml;
+  </script>
+</body>
+</html>
