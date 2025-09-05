@@ -8,20 +8,27 @@
     :root{--brand:#ff5a1f;--border:#e5e7eb;--head:#f5f6f8;--text:#222;--muted:#6b7280}
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;background:#f3f4f6;color:var(--text);font-family:-apple-system,system-ui,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
+
+    /* 팝업(이미지 스타일) */
     .overlay{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:18px;background:rgba(0,0,0,.25)}
     .popup{width:min(940px,100%);height:min(95vh,720px);background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.25);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
     .bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff}
     .logo{font-weight:900;color:var(--brand);font-size:22px}
     .close{border:0;background:#fff;width:28px;height:28px;font-size:18px;line-height:28px;cursor:pointer} .close:hover{background:#f3f4f6;border-radius:4px}
     .content{padding:12px 16px;overflow:auto}
+
+    /* FAQ 프레임 */
     .faq-label{font-size:12px;color:var(--muted);margin:0 0 6px 2px}
     .frame{height:360px;border:1px solid var(--border);border-radius:4px;overflow:hidden;background:#fafafa;margin-bottom:12px}
     .frame iframe{width:100%;height:100%;border:0}
+
+    /* 등록 영역(이미지 느낌) */
     .toolbar{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
     .toolbar label{min-width:72px}
     .input{height:32px;padding:0 10px;border:1px solid var(--border);border-radius:2px;min-width:240px;font:inherit}
     .btn{height:32px;padding:0 12px;border:1px solid #cfd3db;background:#f6f7f9;color:#222;border-radius:2px;cursor:pointer;font-weight:700}
     .btn:hover{background:#eef0f4}
+
     .table-wrap{border:1px solid var(--border);border-radius:2px;overflow:auto}
     table{width:100%;border-collapse:collapse;background:#fff}
     thead th{text-align:left;background:var(--head);border-bottom:1px solid var(--border);padding:8px 10px;font-weight:700;font-size:13px}
@@ -53,6 +60,7 @@
             <button class="btn">사전 등록 신청</button>
             <button class="btn" onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">문자 배포 발신번호 등록 안내</button>
           </div>
+
           <div class="table-wrap">
             <table>
               <colgroup><col class="col-num"><col><col class="col-status"><col class="col-auth"><col class="col-date"><col class="col-del"></colgroup>
@@ -71,15 +79,10 @@
   </div>
 
   <script>
-    // ★ 여기에 너가 배포한 "클린 프록시" 주소를 넣어주면 .area-content만 보임
-    //    Workers:   https://<your>.workers.dev
-    //    PHP:       https://<host>/clean.php
-    const CLEAN_URL = new URLSearchParams(location.search).get('w') || ''; // ?w= 로도 지정 가능
+    // 네 워커(클린 프록시) 주소 — 이미 설정함
+    const CLEAN_URL = "https://nown-clean.kk35834188.workers.dev";
     const RAW = "https://www.nownsurvey.com/board/faq/view/wr_id/5453";
-    const target = CLEAN_URL ? `${CLEAN_URL}?url=${encodeURIComponent(RAW)}&selector=.area-content` : RAW;
-
-    // 클린 프록시가 없으면 원문 전체가 보이니, 꼭 ?w= 로 넘기거나 CLEAN_URL 상수에 넣어줘.
-    document.getElementById("faq").src = target;
+    document.getElementById("faq").src = `${CLEAN_URL}?url=${encodeURIComponent(RAW)}&selector=.area-content`;
 
     // 숫자만 입력
     document.getElementById('cb').addEventListener('keydown',(e)=>{
