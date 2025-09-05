@@ -2,112 +2,129 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <title>발신번호 등록 팝업 데모 (FAQ + 등록 UI)</title>
+  <title>발신번호 등록 팝업 데모</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root{
+      --brand:#ff5a1f;           /* nownsurvey 오렌지 */
+      --border:#e5e7eb;          /* 연한 경계선 */
+      --bg:#ffffff;              /* 팝업 배경 */
+      --head:#f5f6f8;            /* 테이블 thead 배경 */
+      --text:#222;
+      --muted:#6b7280;
+    }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",Arial,sans-serif;color:#0f172a;background:#fff}
+    body{margin:0;background:#f3f4f6;color:var(--text);font-family:-apple-system,system-ui,"Segoe UI",Roboto,"Noto Sans KR","Malgun Gothic",Arial,sans-serif}
 
-    /* ===== 팝업(모달) ===== */
-    .backdrop{
-      position:fixed;inset:0;background:rgba(15,23,42,.45);
-      display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:1000
+    /* ===== 팝업 컨테이너 (이미지와 같은 레이어 느낌) ===== */
+    .overlay{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:18px;background:rgba(0,0,0,.25)}
+    .popup{
+      width:min(940px,100%); height:min(95vh,720px);
+      background:var(--bg); border:1px solid var(--border); border-radius:6px;
+      box-shadow:0 8px 30px rgba(0,0,0,.25); display:grid; grid-template-rows:auto 1fr;
+      overflow:hidden;
     }
-    .modal{
-      width:min(1080px,100%);
-      height:min(90vh,920px);
-      background:#fff;border-radius:14px;box-shadow:0 12px 32px rgba(2,6,23,.35);
-      border:1px solid #e5e7eb;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden
+    /* 상단 바 */
+    .bar{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:12px 16px; border-bottom:1px solid var(--border); background:#fff;
     }
-    .modal-h{
-      display:flex;align-items:center;justify-content:space-between;gap:8px;
-      padding:12px 16px;border-bottom:1px solid #eef2f7;background:#f8fafc
-    }
-    .modal-title{font-weight:800;font-size:16px}
-    .close{
-      width:34px;height:34px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;
-      display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1
-    }
-    .close:hover{background:#f3f4f6}
-    .modal-b{padding:14px;overflow:auto}
-    .modal-f{padding:12px 16px;border-top:1px solid #eef2f7;background:#fff;display:flex;gap:8px;justify-content:flex-end}
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{font-weight:900; color:var(--brand); font-size:22px; letter-spacing:.2px}
+    .close{border:0;background:#fff; width:28px; height:28px; font-size:18px; line-height:28px; cursor:pointer}
+    .close:hover{background:#f3f4f6; border-radius:4px}
 
-    /* ===== 공통 프레임 박스 ===== */
-    .box{margin-bottom:16px}
-    .box-label{font-size:13px;color:#6b7280;margin:0 0 6px 2px}
-    .clip{
-      position:relative;width:100%;height:420px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fafafa
-    }
-    .clip iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-    /* 상단에 헤더가 잠깐 보여도 자연스럽게 가리기 위한 그라데이션(선택) */
-    .clip::before{
-      content:""; position:absolute; left:0; right:0; top:0; height:18px;
-      pointer-events:none; background:linear-gradient(#fafafa, rgba(250,250,250,0));
-    }
+    /* 본문(좌우 여백 포함) */
+    .content{padding:12px 16px; overflow:auto}
 
-    /* ===== 등록 UI(데모용 최소 스타일) ===== */
-    .toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:8px 0 16px}
-    .toolbar .label{font-weight:700}
-    .toolbar input[type="text"]{
-      height:36px;padding:0 12px;border:1px solid #d1d5db;border-radius:10px;min-width:220px;font:inherit
+    /* ===== FAQ iFrame ===== */
+    .faq-box{margin-bottom:14px}
+    .faq-label{font-size:12px;color:var(--muted);margin:0 0 6px 2px}
+    .frame{
+      height:360px; border:1px solid var(--border); border-radius:4px; overflow:hidden;
+      background:#fafafa;
     }
-    .btn{height:36px;padding:0 12px;border:1px solid #111827;background:#111827;color:#fff;border-radius:10px;cursor:pointer;font-weight:700}
-    .btn.secondary{background:#fff;color:#111827;border-color:#d1d5db}
-    .table-wrap{overflow-x:auto}
-    table{width:100%;min-width:720px;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff}
+    .frame iframe{width:100%; height:100%; border:0}
+
+    /* ===== 등록 영역 (이미지 스타일에 맞춤) ===== */
+    .toolbar{display:flex; align-items:center; gap:8px; margin:2px 0 10px}
+    .toolbar label{min-width:72px}
+    .input{
+      height:32px; padding:0 10px; border:1px solid var(--border); border-radius:2px; min-width:240px; font:inherit;
+    }
+    .btn{
+      height:32px; padding:0 12px; border:1px solid #cfd3db; background:#f6f7f9; color:#222; border-radius:2px; cursor:pointer;
+      font-weight:700;
+    }
+    .btn:hover{background:#eef0f4}
+    .btn.primary{border-color:#cfd3db; background:#f6f7f9}
+
+    /* 테이블 (이미지처럼) */
+    .table-wrap{border:1px solid var(--border); border-radius:2px; overflow:auto}
+    table{width:100%; border-collapse:collapse; background:#fff}
     thead th{
-      text-align:left;background:#f8fafc;color:#0f172a;font-weight:800;font-size:14px;border-bottom:1px solid #e5e7eb;padding:10px 12px
+      text-align:left; background:var(--head); border-bottom:1px solid var(--border);
+      padding:8px 10px; font-weight:700; font-size:13px;
     }
-    tbody td{padding:10px 12px;border-bottom:1px solid #f1f5f9;font-size:14px}
+    tbody td{
+      padding:10px; border-bottom:1px solid var(--border); font-size:13px;
+    }
     tbody tr:last-child td{border-bottom:0}
-    .del{
-      width:28px;height:28px;border:1px solid #e5e7eb;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:#fff
+    .col-num{width:60px}
+    .col-status{width:120px}
+    .col-auth{width:90px}
+    .col-date{width:180px}
+    .col-del{width:64px}
+    .del-btn{
+      width:24px; height:24px; border:0; background:#fff; cursor:pointer; border-radius:3px; display:inline-flex; align-items:center; justify-content:center;
     }
+    .del-btn:hover{background:#f3f4f6}
+    .x{font-size:16px; line-height:1}
 
-    /* 페이지 배경(팝업만 보여주는 데모라 심플하게) */
-    .page{min-height:100vh;background:linear-gradient(180deg,#f8fafc 0,#fff 40%);display:flex;align-items:center;justify-content:center}
+    /* 상단 얇은 구분선 느낌 */
+    .top-divider{height:1px; background:var(--border); margin:10px 0}
   </style>
 </head>
 <body>
-  <div class="page"><!-- 팝업 전용 데모, 배경은 의미 없음 --></div>
 
-  <!-- ===== 팝업: 상단 FAQ + 하단 등록 UI ===== -->
-  <div class="backdrop" id="popup">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="t">
-      <header class="modal-h">
-        <div id="t" class="modal-title">문자 배포 발신번호 등록 안내 · 등록/관리</div>
-        <button class="close" id="closeBtn" aria-label="닫기">✕</button>
+  <div class="overlay">
+    <section class="popup" role="dialog" aria-modal="true" aria-labelledby="title">
+      <!-- 상단바 -->
+      <header class="bar">
+        <div class="brand">
+          <div class="logo">nownsurvey</div>
+        </div>
+        <button class="close" aria-label="닫기" onclick="document.querySelector('.overlay').style.display='none'">✕</button>
       </header>
 
-      <div class="modal-b">
-        <!-- 1) FAQ iFrame: 공개 URL 그대로(스크롤-투-텍스트로 .area-content 근처부터 시작) -->
-        <section class="box">
-          <p class="box-label">FAQ (스크롤 가능, 공개 URL 사용)</p>
-          <div class="clip">
-            <iframe
-              title="FAQ"
-              scrolling="yes"
-              src="https://www.nownsurvey.com/board/faq/view/wr_id/5453#:~:text=%5B%EB%AC%B8%EC%9E%90%20%EB%B0%9C%EC%86%A1%EB%B2%88%ED%98%B8%20%EB%93%B1%EB%A1%9D%20%EC%95%88%EB%82%B4%5D">
-            </iframe>
+      <!-- 본문 -->
+      <div class="content">
+        <!-- FAQ iFrame -->
+        <section class="faq-box">
+          <p class="faq-label">문자 배포 발신번호 등록 안내 (스크롤 가능)</p>
+          <div class="frame">
+            <iframe id="faq" title="FAQ"></iframe>
           </div>
         </section>
 
-        <!-- 2) 발신번호 등록 UI(데모용) -->
-        <section class="box" aria-label="발신번호 등록/관리">
+        <div class="top-divider"></div>
+
+        <!-- 발신번호 등록 영역 -->
+        <section aria-label="발신번호 등록">
           <div class="toolbar">
-            <span class="label">발신번호:</span>
-            <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="11" placeholder="숫자만 입력 (예: 01012345678)" aria-label="발신번호 입력" />
-            <button class="btn">사전 등록 신청</button>
-            <button class="btn secondary" onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">
-              FAQ 원문 보기
-            </button>
+            <label for="cb">발신번호:</label>
+            <input id="cb" class="input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="11" placeholder="숫자만 입력 (예: 01012345678)" />
+            <button class="btn primary">사전 등록 신청</button>
+            <button class="btn" onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">문자 배포 발신번호 등록 안내</button>
           </div>
 
-          <div class="table-wrap" aria-label="발신번호 목록">
+          <div class="table-wrap">
             <table>
               <colgroup>
-                <col style="width:60px"/><col/><col style="width:120px"/><col style="width:110px"/><col style="width:190px"/><col style="width:80px"/>
+                <col class="col-num"><col>
+                <col class="col-status"><col class="col-auth">
+                <col class="col-date"><col class="col-del">
               </colgroup>
               <thead>
                 <tr>
@@ -120,38 +137,40 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td>4</td><td>01011111111</td><td>접수중</td><td>비승인</td><td>2025-07-10 10:44:17</td><td><button class="del" aria-label="삭제">✕</button></td></tr>
-                <tr><td>3</td><td>1111111</td><td>심사완료</td><td>승인</td><td>2025-06-19 13:16:23</td><td><button class="del" aria-label="삭제">✕</button></td></tr>
-                <tr><td>2</td><td>0231494919</td><td>심사완료</td><td>승인</td><td>2025-06-16 16:32:55</td><td><button class="del" aria-label="삭제">✕</button></td></tr>
-                <tr><td>1</td><td>01035834188</td><td>접수중</td><td>비승인</td><td>2025-06-13 09:14:40</td><td><button class="del" aria-label="삭제">✕</button></td></tr>
+                <tr><td>4</td><td>01011111111</td><td>접수중</td><td>비승인</td><td>2025-07-10 10:44:17</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
+                <tr><td>3</td><td>1111111</td><td>심사완료</td><td>승인</td><td>2025-06-19 13:16:23</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
+                <tr><td>2</td><td>0231494919</td><td>심사완료</td><td>승인</td><td>2025-06-16 16:32:55</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
+                <tr><td>1</td><td>01035834188</td><td>접수중</td><td>비승인</td><td>2025-06-13 09:14:40</td><td><button class="del-btn" aria-label="삭제"><span class="x">✕</span></button></td></tr>
               </tbody>
             </table>
           </div>
         </section>
       </div>
-
-      <footer class="modal-f">
-        <button class="btn secondary" onclick="window.open('https://www.nownsurvey.com/board/faq/view/wr_id/5453','_blank')">FAQ 원문</button>
-        <button class="btn" id="closeBtn2">닫기</button>
-      </footer>
     </section>
   </div>
 
   <script>
-    // 팝업 닫기(데모에선 열려있지만, 닫기 동작도 제공)
-    const backdrop = document.getElementById('popup');
-    const closeBtns = [document.getElementById('closeBtn'), document.getElementById('closeBtn2')];
-    closeBtns.forEach(btn => btn.addEventListener('click', ()=> backdrop.style.display='none'));
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') backdrop.style.display='none'; });
-    backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) backdrop.style.display='none'; });
+    // (1) FAQ iFrame 로딩
+    // 기본: 공개 URL 그대로 사용(스크롤-투-텍스트로 '문자 배포 발신번호 등록 안내' 쪽부터 시작)
+    const PUBLIC_FAQ = "https://www.nownsurvey.com/board/faq/view/wr_id/5453#:~:text=%5B%EB%AC%B8%EC%9E%90%20%EB%B0%9C%EC%86%A1%EB%B2%88%ED%98%B8%20%EB%93%B1%EB%A1%9D%20%EC%95%88%EB%82%B4%5D";
 
-    // 입력창 숫자만 (간단)
-    document.querySelectorAll('input[inputmode="numeric"]').forEach(($el)=>{
-      $el.addEventListener('keydown', (e)=>{
-        const k = e.keyCode;
-        const ok = (k===8||k===9||k===13||k===46||(k>=37&&k<=40)||(k>=48&&k<=57)||(k>=96&&k<=105));
-        if(!ok) e.preventDefault();
-      });
+    // 선택: 헤더/푸터 완전 제거가 가능한 '클린 URL'(Cloudflare Worker/PHP 프록시 등)을 ?w= 로 전달하면 그걸 사용
+    // 예: index.html?w=https://your-worker.workers.dev
+    const params = new URLSearchParams(location.search);
+    const worker = params.get("w");  // 클린 서버 주소 (옵션)
+    const rawUrl = "https://www.nownsurvey.com/board/faq/view/wr_id/5453";
+
+    const src = worker
+      ? `${worker}?url=${encodeURIComponent(rawUrl)}&selector=.area-content`
+      : PUBLIC_FAQ;
+
+    document.getElementById("faq").src = src;
+
+    // (2) 숫자만 입력
+    document.getElementById('cb').addEventListener('keydown', (e)=>{
+      const k = e.keyCode;
+      const ok = (k===8||k===9||k===13||k===46||(k>=37&&k<=40)||(k>=48&&k<=57)||(k>=96&&k<=105));
+      if(!ok) e.preventDefault();
     });
   </script>
 </body>
